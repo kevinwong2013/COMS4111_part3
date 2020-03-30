@@ -13,6 +13,7 @@ import os
 from sqlalchemy import *
 from sqlalchemy.pool import NullPool
 from flask import Flask, request, render_template, g, redirect, Response
+from project_part3.query_submission import query_submission
 
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
 app = Flask(__name__, template_folder=tmpl_dir)
@@ -29,7 +30,7 @@ app = Flask(__name__, template_folder=tmpl_dir)
 #
 #     DATABASEURI = "postgresql://gravano:foobar@35.243.220.243/proj1part2"
 #
-DATABASEURI = "postgresql://user:password@35.243.220.243/proj1part2"
+DATABASEURI = "postgresql://hw2735:5438@35.243.220.243/proj1part2"
 
 
 #
@@ -103,7 +104,10 @@ def index():
 
   # DEBUG: this is debugging code to see what request looks like
   print(request.args)
+  form = query_submission()
+  #return render_template()
 
+  #
 
   #
   # example of a database query
@@ -170,10 +174,10 @@ def add():
   return redirect('/')
 
 
-@app.route('/login')
-def login():
-    abort(401)
-    this_is_never_executed()
+#@app.route('/login')
+#def login():
+#    abort(401)
+#    this_is_never_executed()
 
 
 if __name__ == "__main__":

@@ -17,6 +17,16 @@
     {% endfor %}
   </div>
 
+  <h2> Query Submission </h2>
+  <form action="" method="post">
+    <p>
+      {{form.query.label}}<br>
+      {{form.query(size=30)}}
+    </p>
+    <p> {{form.submit}} </p>
+  </form>
+
+
 <p><a href="another">Go to the other page</a></p>
 
 <form method="POST" action="/add">
