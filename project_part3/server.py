@@ -207,7 +207,7 @@ def run_default_query():
       # TODO run `query` on database
       break
 
-  print()
+  return redirect('/')
 
 @app.route('/login')
 def login():
