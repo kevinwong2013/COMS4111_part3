@@ -169,15 +169,33 @@ def another():
 # Example of adding new data to the database
 @app.route('/add', methods=['POST'])
 def add():
+  # name = request.form['name']
+  # g.conn.execute('INSERT INTO test(name) VALUES (%s)', name)
+  return redirect('/')
+
+@app.route('/run_query', methods=['POST'])
+def run_query():
+  print(request.form)
+  user_query = request.form['query']
+  print(user_query)
+  return redirect('/')
+
+@app.route('/run_default_query', methods=['POST'])
+def run_default_query():
+  print('in default query')
+  which_query = request.form
+  print(which_query)
+  return redirect('/')
   name = request.form['name']
   g.conn.execute('INSERT INTO test(name) VALUES (%s)', name)
   return redirect('/')
 
 
-#@app.route('/login')
-#def login():
-#    abort(401)
-#    this_is_never_executed()
+@app.route('/login')
+def login():
+    print('DEBUG: /login improperly accessed')
+   abort(401)
+   this_is_never_executed()
 
 
 if __name__ == "__main__":
