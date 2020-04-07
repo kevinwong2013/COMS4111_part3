@@ -13,7 +13,7 @@ import os
 from sqlalchemy import *
 from sqlalchemy.pool import NullPool
 from flask import Flask, request, render_template, g, redirect, Response
-from project_part3.query_submission import query_submission
+#import query_submission
 
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
 app = Flask(__name__, template_folder=tmpl_dir)
@@ -104,7 +104,7 @@ def index():
 
   # DEBUG: this is debugging code to see what request looks like
   print(request.args)
-  form = query_submission()
+  #form = query_submission()
   #return render_template()
 
   #
@@ -112,11 +112,11 @@ def index():
   #
   # example of a database query
   #
-  cursor = g.conn.execute("SELECT name FROM test")
-  names = []
-  for result in cursor:
-    names.append(result['name'])  # can also be accessed using result[0]
-  cursor.close()
+  ##cursor = g.conn.execute("SELECT name FROM test")
+  #names = []
+  #for result in cursor:
+  #  names.append(result['name'])  # can also be accessed using result[0]
+  #cursor.close()
 
   #
   # Flask uses Jinja templates, which is an extension to HTML where you can
@@ -194,8 +194,8 @@ def run_default_query():
 @app.route('/login')
 def login():
     print('DEBUG: /login improperly accessed')
-   abort(401)
-   this_is_never_executed()
+    abort(401)
+    this_is_never_executed()
 
 
 if __name__ == "__main__":
