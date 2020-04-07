@@ -178,18 +178,36 @@ def run_query():
   print(request.form)
   user_query = request.form['query']
   print(user_query)
-  return redirect('/')
+
+  # TODO put code to run query here
+  # user_query is the string that needs to be run on the database
+  
+  return redirect('/') 
+
+# TODO fill this out
+default_queries = [
+  'SELECT * FROM a_table',
+  'QUERY 2',
+  'QUERY 3'
+]
+
+default_tags = ['q1', 'q2', 'q3']
 
 @app.route('/run_default_query', methods=['POST'])
 def run_default_query():
+  # Runs a pre-defined query
   print('in default query')
   which_query = request.form
   print(which_query)
-  return redirect('/')
-  name = request.form['name']
-  g.conn.execute('INSERT INTO test(name) VALUES (%s)', name)
-  return redirect('/')
+  for i, t in enumerate(default_tags):
+    if t in which_query.keys():
+      print(i)
+      query = default_queries[i]
+      print(query)
+      # TODO run `query` on database
+      break
 
+  print()
 
 @app.route('/login')
 def login():
