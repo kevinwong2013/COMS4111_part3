@@ -184,6 +184,10 @@ def run_query():
   print(user_query)
 
   # TODO put code to run query here
+  cursor = g.conn.execute(user_query)
+  for result in cursor:
+    names.append(result)
+  cursor.close()
   # user_query is the string that needs to be run on the database
   # Put result of user_query in "names" array
   
@@ -212,15 +216,19 @@ def run_default_query():
       print(query)
       # TODO run `query` on database
       # Put result of query in array "names"
-      break
+      cursor = g.conn.execute(query)
+      #names = []
+      for result in cursor:
+        names.append(result)
+      cursor.close()
 
   return redirect('/')
 
 @app.route('/login')
 def login():
     print('DEBUG: /login improperly accessed')
-    abort(401)
-    this_is_never_executed()
+    #abort(401)
+    #this_is_never_executed()
 
 
 if __name__ == "__main__":
