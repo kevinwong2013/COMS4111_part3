@@ -90,6 +90,9 @@ def teardown_request(exception):
 # see for routing: http://flask.pocoo.org/docs/0.10/quickstart/#routing
 # see for decorators: http://simeonfranklin.com/blog/2012/jul/1/python-decorators-in-12-steps/
 #
+
+names = []
+
 @app.route('/')
 def index():
   """
@@ -175,12 +178,14 @@ def add():
 
 @app.route('/run_query', methods=['POST'])
 def run_query():
+  names = []
   print(request.form)
   user_query = request.form['query']
   print(user_query)
 
   # TODO put code to run query here
   # user_query is the string that needs to be run on the database
+  # Put result of user_query in "names" array
   
   return redirect('/') 
 
@@ -195,6 +200,7 @@ default_tags = ['q1', 'q2', 'q3']
 
 @app.route('/run_default_query', methods=['POST'])
 def run_default_query():
+  names = []
   # Runs a pre-defined query
   print('in default query')
   which_query = request.form
@@ -205,6 +211,7 @@ def run_default_query():
       query = default_queries[i]
       print(query)
       # TODO run `query` on database
+      # Put result of query in array "names"
       break
 
   return redirect('/')
