@@ -221,6 +221,7 @@ def run_default_query():
       for result in cursor:
         names.append(result)
       cursor.close()
+      print (names)
 
   return redirect('/')
 
