@@ -178,18 +178,23 @@ def add():
 
 @app.route('/run_query', methods=['POST'])
 def run_query():
-  names = []
+  query_results = []
   print(request.form)
   user_query = request.form['query']
   print(user_query)
 
   # TODO put code to run query here
+  print("Start running query")
   cursor = g.conn.execute(user_query)
+  print("Finished running query")
   for result in cursor:
-    names.append(result)
+    query_results.append(result)
   cursor.close()
+  print("the Query results are")
+  for row in query_results:
+    print(row)
   # user_query is the string that needs to be run on the database
-  # Put result of user_query in "names" array
+  # Put result of user_query in "query_results" array
   
   return redirect('/') 
 
@@ -204,25 +209,31 @@ default_tags = ['q1', 'q2', 'q3']
 
 @app.route('/run_default_query', methods=['POST'])
 def run_default_query():
-  names = []
-  # Runs a pre-defined query
+    # Runs a pre-defined query
   print('in default query')
   which_query = request.form
   print(which_query)
   for i, t in enumerate(default_tags):
     if t in which_query.keys():
+
       print(i)
       query = default_queries[i]
       print(query)
-      # TODO run `query` on database
-      # Put result of query in array "names"
-      cursor = g.conn.execute(query)
-      #names = []
-      for result in cursor:
-        names.append(result)
-      cursor.close()
-      print (names)
 
+      # TODO run `query` on database
+
+      # Put result of query in array "query_results"
+      print("Start running query")
+      cursor = g.conn.execute(query)
+      print("Finished running query")
+      query_results = []
+      for result in cursor:
+        query_results.append(result)
+      cursor.close()
+      print("the Query results are")
+      for row in query_results:
+        print(row)
+                
   return redirect('/')
 
 @app.route('/login')
