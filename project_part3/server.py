@@ -233,7 +233,7 @@ def run_default_query():
       print("the Query results are")
       for row in query_results:
         print(row)
-                
+
   return redirect('/')
 
 @app.route('/login')
