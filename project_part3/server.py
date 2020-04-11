@@ -18,6 +18,9 @@ from flask import Flask, request, render_template, g, redirect, Response
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
 app = Flask(__name__, template_folder=tmpl_dir)
 
+rate_types = ['Winning Rate', 'First Three Rate']
+entities = ['Jockey', 'Horse', 'Trainer']
+time_frames = ['Races', 'Days']
 
 #
 # The following is a dummy URI that does not connect to a valid database. You will need to modify it to connect to your Part 2 database in order to use the data.
@@ -91,8 +94,6 @@ def teardown_request(exception):
 # see for decorators: http://simeonfranklin.com/blog/2012/jul/1/python-decorators-in-12-steps/
 #
 
-names = []
-
 @app.route('/')
 def index():
   """
@@ -106,142 +107,91 @@ def index():
   """
 
   # DEBUG: this is debugging code to see what request looks like
-  print(request.args)
-  #form = query_submission()
-  #return render_template()
+  # print(request.args)
 
-  #
-
-  #
-  # example of a database query
-  #
-  ##cursor = g.conn.execute("SELECT name FROM test")
-  #names = []
-  #for result in cursor:
-  #  names.append(result['name'])  # can also be accessed using result[0]
-  #cursor.close()
-
-  #
-  # Flask uses Jinja templates, which is an extension to HTML where you can
-  # pass data to a template and dynamically generate HTML based on the data
-  # (you can think of it as simple PHP)
-  # documentation: https://realpython.com/blog/python/primer-on-jinja-templating/
-  #
-  # You can see an example template in templates/index.html
-  #
-  # context are the variables that are passed to the template.
-  # for example, "data" key in the context variable defined below will be 
-  # accessible as a variable in index.html:
-  #
-  #     # will print: [u'grace hopper', u'alan turing', u'ada lovelace']
-  #     <div>{{data}}</div>
-  #     
-  #     # creates a <div> tag for each element in data
-  #     # will print: 
-  #     #
-  #     #   <div>grace hopper</div>
-  #     #   <div>alan turing</div>
-  #     #   <div>ada lovelace</div>
-  #     #
-  #     {% for n in data %}
-  #     <div>{{n}}</div>
-  #     {% endfor %}
-  #
-  context = dict(data = names)
-
-
-  #
-  # render_template looks in the templates/ folder for files.
-  # for example, the below file reads template/index.html
-  #
-  return render_template("index.html", **context)
-
-#
-# This is an example of a different path.  You can see it at:
-# 
-#     localhost:8111/another
-#
-# Notice that the function name is another() rather than index()
-# The functions for each app.route need to have different names
-#
-@app.route('/another')
-def another():
-  return render_template("another.html")
-
-
-# Example of adding new data to the database
-@app.route('/add', methods=['POST'])
-def add():
-  # name = request.form['name']
-  # g.conn.execute('INSERT INTO test(name) VALUES (%s)', name)
-  return redirect('/')
+  return render_template("index.html", rate_types=rate_types, entities=entities, time_frames=time_frames, query_data=[], default_error=False, custom_error=False)
 
 @app.route('/run_query', methods=['POST'])
 def run_query():
-  query_results = []
-  print(request.form)
-  user_query = request.form['query']
-  print(user_query)
+  query_validation = validate_n_entries_field(request.form)
+  if query_validation != True:
+    error = query_validation
+    query_results = []
+  else:
+    print('Custom Query: {}'.format(user_query))
+    user_query = request.form['query']
+    error = False
 
-  # TODO put code to run query here
-  print("Start running query")
-  cursor = g.conn.execute(user_query)
-  print("Finished running query")
-  for result in cursor:
-    query_results.append(result)
-  cursor.close()
-  print("the Query results are")
-  for row in query_results:
-    print(row)
-  # user_query is the string that needs to be run on the database
-  # Put result of user_query in "query_results" array
-  
-  return redirect('/') 
+    # Send query to DB
+    query_results = []
+    print("Start running query")
+    cursor = g.conn.execute(user_query)
+    print("Finished running query")
+    for result in cursor:
+      query_results.append(result)
+    cursor.close()
+    print("the Query results are")
+    for row in query_results:
+      print(row)
+    
+#     query_results = [[1, 2, 3], ['a', 'b', 'c']] # For DEBUG
+    
+  return render_template("index.html", rate_types=rate_types, entities=entities, time_frames=time_frames, query_data=query_results, default_error=False, custom_error=error)  
 
-# TODO fill this out
-default_queries = [
-  'SELECT * FROM a_table',
-  'QUERY 2',
-  'QUERY 3'
-]
-
-default_tags = ['q1', 'q2', 'q3']
 
 @app.route('/run_default_query', methods=['POST'])
 def run_default_query():
-    # Runs a pre-defined query
-  print('in default query')
-  which_query = request.form
-  print(which_query)
-  for i, t in enumerate(default_tags):
-    if t in which_query.keys():
+  # Runs a pre-defined query
+  print('in default query: {}'.format(request.form))
+  query_validation = validate_n_entries_field(request.form)
+  if query_validation == True:
+    print('valid request!')
+    error = False
+    
+    # Get chosen query parameters
+    form = request.form
+    n_elements = form['n_entries']
+    rate_type = form['rate_type']
+    entity_type = form['entity_type']
+    time_frame = form['time_frame']
+    print(n_elements, rate_type, entity_type, time_frame)
+    
+    query = None # TODO need to construct query here
+    
+    # Send query to DB
+    print("Start running query")
+    cursor = g.conn.execute(query)
+    print("Finished running query")
+    query_results = []
+    for result in cursor:
+      query_results.append(result)
+    cursor.close()
+    print("the Query results are")
+    for row in query_results:
+      print(row)
 
-      print(i)
-      query = default_queries[i]
-      print(query)
+#     query_results = [['a', 'b', 'c'], ['a', 'b', 'c']] # For DEBUG
+  else:
+    # query_validation is an error string
+    print('invalid request')
+    query_results = []
+    error = query_validation
 
-      # TODO run `query` on database
+  return render_template("index.html", rate_types=rate_types, entities=entities, time_frames=time_frames, query_data=query_results, default_error=error, custom_error=False)
 
-      # Put result of query in array "query_results"
-      print("Start running query")
-      cursor = g.conn.execute(query)
-      print("Finished running query")
-      query_results = []
-      for result in cursor:
-        query_results.append(result)
-      cursor.close()
-      print("the Query results are")
-      for row in query_results:
-        print(row)
-
-  return redirect('/')
-
-@app.route('/login')
-def login():
-    print('DEBUG: /login improperly accessed')
-    #abort(401)
-    #this_is_never_executed()
-
+def validate_n_entries_field(form):
+  # expected_keys = {'rate_type', 'entity_type', 'n_entries', 'time_frame'}
+  # keys = set(form.keys()) 
+  # if expected_keys - keys != set(): 
+  #   return 'Please select one of the three rate types at the top.'
+  
+  try:
+    _ = int(form['n_entries'])
+  except:
+    print('except hit')
+    return 'Please enter a number in the "Number of Entries" field.'
+  
+  return True
 
 if __name__ == "__main__":
   import click
