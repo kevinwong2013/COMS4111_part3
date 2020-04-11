@@ -8,21 +8,71 @@
 
 <body>
   <h1>Hong Kong Horse Racing Database</h1>
-  
-  <form method="POST" action="/run_query">
-    <p>Enter a Query: <input type="text" name="query"> <input type="submit" value="Run Query"></p>
-  </form>
 
+  <h2>Run a query using the following options:</h2>
   <form method="POST" action="/run_default_query">
-    <p><input type="submit" name="q1" value="Query 1"> <input type="submit" name="q2" value="Query 2"> <input type="submit" name="q3" value="Query 3"></p>
+    <p>
+      <select name="rate_type" method="GET">
+        {% for rt in rate_types %}
+        <option value="{{rt}}">{{rt}}</option>
+        {% endfor %}
+      </select>
+      <br><br>
+      <select name="entity_type" method="GET">
+        {% for e in entities %}
+        <option value="{{e}}">{{e}}</option>
+        {% endfor %}
+      </select>
+    </p>
+
+    <p>
+      Number of Entries: <input type="text" name="n_entries">
+    </p>
+
+    <p>
+      <select name="time_frame" method="GET">
+        {% for t in time_frames %}
+        <option value="{{t}}">{{t}}</option>
+        {% endfor %}
+      </select>
+    </p>
+
+    <p>
+      <input type="submit" value="Submit Query">
+    </p>
+      
+      {% if default_error != False %}
+        {{default_error}}
+      {% endif %}
   </form>
 
-  <div>
-    {% for n in data %}
-    <div>{{n}}</div>
+  <h2>Run a custom query</h2>
+  <form method="POST" action="/run_query">
+    <p>
+      Enter a Query: <input type="text" name="query"> <br>
+      Number of Entries: <input type="text" name="n_entries">
+    </p>
+    <p>
+      <input type="submit" value="Run Query">
+    </p>
+      
+    {% if custom_error != False %}
+      {{custom_error}}
+    {% endif %}
+  </form>
+
+  <h2>Query Results</h2>
+  <table>
+    {% for row in query_data %}
+    <tr>
+      {% for col in row %}
+      <td>{{col}}</td>
+      {% endfor %}
+    </tr>
     {% endfor %}
-  </div>
+  </table>
 
 </body>
+
 
 </html>
