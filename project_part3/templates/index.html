@@ -12,24 +12,19 @@
   <h2>Run a query using the following options:</h2>
   <form method="POST" action="/run_default_query">
     <p>
+      Select the
       <select name="rate_type" method="GET">
         {% for rt in rate_types %}
         <option value="{{rt}}">{{rt}}</option>
         {% endfor %}
       </select>
-      <br><br>
+      of
       <select name="entity_type" method="GET">
         {% for e in entities %}
         <option value="{{e}}">{{e}}</option>
         {% endfor %}
       </select>
-    </p>
-
-    <p>
-      Number of Entries: <input type="text" name="n_entries">
-    </p>
-
-    <p>
+      within the previous: <input type="text" name="n_entries">
       <select name="time_frame" method="GET">
         {% for t in time_frames %}
         <option value="{{t}}">{{t}}</option>
@@ -50,7 +45,7 @@
   <form method="POST" action="/run_query">
     <p>
       Enter a Query: <input type="text" name="query"> <br>
-      Number of Entries: <input type="text" name="n_entries">
+      Number of Entries to be displayed: <input type="text" name="n_entries">
     </p>
     <p>
       <input type="submit" value="Run Query">
