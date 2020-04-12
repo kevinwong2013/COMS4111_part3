@@ -159,7 +159,9 @@ def run_default_query():
         rate_type = form['rate_type']
         entity_type = form['entity_type']
         time_frame = form['time_frame']
+        print(n_elements, rate_type, entity_type, time_frame)
 
+        # TODO need to construct query here
         if rate_types == 'Winning Rate':
             rate_query = "1"
         else:
@@ -174,8 +176,6 @@ def run_default_query():
             entity_table = "trainer"
             entity_name = "trainer_name"
 
-        print(n_elements, rate_type, entity_type, time_frame)
-        # TODO need to construct query here
         if time_frame == 'Days':
             query = "WITH \
               tmp AS (SELECT * FROM enter_event NATURAL JOIN race_result NATURAL JOIN " + entity_table + \
@@ -190,7 +190,8 @@ def run_default_query():
         else:
             query = "WITH \
               tmp AS (SELECT * FROM enter_event NATURAL JOIN race_result NATURAL JOIN " + entity_table + \
-                    "WHERE event_id >= ((SELECT event_id FROM enter_event ORDER BY event_date DESC LIMIT 1)  - " + str(n_elements) + ") ),\
+                    "WHERE event_id >= ((SELECT event_id FROM enter_event ORDER BY event_date DESC LIMIT 1)  - " + str(
+                n_elements) + ") ),\
                 tmp2 AS (SELECT" + entity_name + ", COUNT(*) AS win FROM tmp\
               WHERE place <=" + rate_query + \
                     "GROUP BY " + entity_name + "),\
