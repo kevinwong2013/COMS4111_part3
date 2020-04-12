@@ -173,32 +173,33 @@ def run_default_query():
             entity_table = "horse"
             entity_name = "horse_name"
         else:
-            entity_table = "trainer"
+            entity_table = "train_horse NATURAL JOIN trainer"
             entity_name = "trainer_name"
 
         if time_frame == 'Days':
+            print("time frame is in days", n_elements)
             query = "WITH \
-              tmp AS (SELECT * FROM enter_event NATURAL JOIN race_result NATURAL JOIN " + entity_table + \
-                    "WHERE event_date >= (CURRENT_DATE- " + str(n_elements) + ") ),\
-                tmp2 AS (SELECT" + entity_name + ", COUNT(*) AS win FROM tmp\
-              WHERE place <=" + rate_query + \
-                    "GROUP BY " + entity_name + "),\
-              tmp3 AS (SELECT " + entity_name + ", COUNT(*) AS total FROM tmp\
-                   GROUP BY " + entity_name + "),\
-              tmp4 AS (SELECT * from tmp2 NATURAL JOIN tmp3)\
-              SELECT " + entity_name + ", win / CAST(total AS DECIMAL) AS rate FROM tmp4 ORDER BY " + entity_name + ";"
+            tmp AS (SELECT * FROM enter_event NATURAL JOIN race_result NATURAL JOIN " + entity_table + \
+                    " WHERE event_date >= (CURRENT_DATE - " + str(n_elements) + " ) ),\
+            tmp2 AS (SELECT " + entity_name + ", COUNT(*) AS win FROM tmp\
+            WHERE place <=" + rate_query + \
+                " GROUP BY " + entity_name + "),\
+            tmp3 AS (SELECT " + entity_name + " , COUNT(*) AS total FROM tmp\
+                GROUP BY " + entity_name + " ),\
+            tmp4 AS (SELECT * from tmp2 NATURAL JOIN tmp3)\
+            SELECT " + entity_name + ", win / CAST(total AS DECIMAL) AS rate FROM tmp4 ORDER BY " + entity_name + " ;"
         else:
             query = "WITH \
-              tmp AS (SELECT * FROM enter_event NATURAL JOIN race_result NATURAL JOIN " + entity_table + \
-                    "WHERE event_id >= ((SELECT event_id FROM enter_event ORDER BY event_date DESC LIMIT 1)  - " + str(
-                n_elements) + ") ),\
-                tmp2 AS (SELECT" + entity_name + ", COUNT(*) AS win FROM tmp\
-              WHERE place <=" + rate_query + \
-                    "GROUP BY " + entity_name + "),\
-              tmp3 AS (SELECT " + entity_name + ", COUNT(*) AS total FROM tmp\
-                   GROUP BY " + entity_name + "),\
-              tmp4 AS (SELECT * from tmp2 NATURAL JOIN tmp3)\
-              SELECT " + entity_name + ", win / CAST(total AS DECIMAL) AS rate FROM tmp4 ORDER BY " + entity_name + ";"
+            tmp AS (SELECT * FROM enter_event NATURAL JOIN race_result NATURAL JOIN " + entity_table + \
+                    " WHERE event_id >= ((SELECT event_id FROM enter_event ORDER BY event_date DESC LIMIT 1) - " + str(
+                n_elements) + " ) ),\
+            tmp2 AS (SELECT " + entity_name + ", COUNT(*) AS win FROM tmp\
+            WHERE place <=" + rate_query + \
+                " GROUP BY " + entity_name + "),\
+            tmp3 AS (SELECT " + entity_name + " , COUNT(*) AS total FROM tmp\
+                GROUP BY " + entity_name + " ),\
+            tmp4 AS (SELECT * from tmp2 NATURAL JOIN tmp3)\
+            SELECT " + entity_name + ", win / CAST(total AS DECIMAL) AS rate FROM tmp4 ORDER BY " + entity_name + " ;"
 
         # Send query to DB
         print("Start running query")
