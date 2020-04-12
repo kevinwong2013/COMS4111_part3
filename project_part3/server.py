@@ -123,22 +123,27 @@ def run_query():
         query_results = []
     else:
         user_query = request.form['query']
-        print('Custom Query: {}'.format(user_query))
-        error = False
+        if user_query.split(' ')[0].lower() != 'select':
+            # Invalid request
+            error = 'We currently only accept queries starting with "SELECT"'
+            query_results = []
+        else:
+            print('Custom Query: {}'.format(user_query))
+            error = False
 
-        # Send query to DB
-        query_results = []
-        print("Start running query")
-        cursor = g.conn.execute(user_query)
-        print("Finished running query")
-        for result in cursor:
-            query_results.append(result)
-        cursor.close()
-        print("the Query results are")
-        for row in query_results:
-            print(row)
+            # Send query to DB
+            query_results = []
+            print("Start running query")
+            cursor = g.conn.execute(user_query)
+            print("Finished running query")
+            for result in cursor:
+                query_results.append(result)
+            cursor.close()
+            print("the Query results are")
+            for row in query_results:
+                print(row)
 
-    #     query_results = [[1, 2, 3], ['a', 'b', 'c']] # For DEBUG
+        #     query_results = [[1, 2, 3], ['a', 'b', 'c']] # For DEBUG
 
     return render_template("index.html", rate_types=rate_types, entities=entities, time_frames=time_frames,
                            query_data=query_results, default_error=False, custom_error=error)
