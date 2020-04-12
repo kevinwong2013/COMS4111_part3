@@ -13,9 +13,7 @@ If you did not implement some part of the proposal in Part 1, explain why.
 - Also we can define the time horizon to be within the previous x days or x races.
 - We also added a custom form where user can input SQL command directly for more complex interactions.
 
-Briefly describe two of the web pages that require the most interesting database operations in terms of what the pages are used for, 
-how the page is related to the database operations (e.g., inputs on the page are used in such and such way to produce database operations that do such and such), 
-and why you think they are interesting.
+Briefly describe the web page that require the most interesting database operations in terms of what the pages are used for.
 - The page integrates two possible DB interactions one via predetermined blanks and another direct SQL entry.
 - The most interesting two parts will be the predetermined blanks, it output the rate of winning for each entities (horse, jockey, trainer).
 - This operation utilize many subqueries and temporary tables to perform the data slicing and statistics.
