@@ -162,14 +162,19 @@ def run_default_query():
         print(n_elements, rate_type, entity_type, time_frame)
 
         # TODO need to construct query here
+        try:
+            n_elements = str(int(n_elements))
+        except:
+            n_elements = "0"
+
         if rate_types == 'Winning Rate':
             rate_query = "1"
         else:
             rate_query = "3"
-        if entities == 'Jockey':
+        if entity_type == 'Jockey':
             entity_table = "jockey"
             entity_name = "jockey_name"
-        elif entities == 'Horse':
+        elif entity_type == 'Horse':
             entity_table = "horse"
             entity_name = "horse_name"
         else:
@@ -177,13 +182,13 @@ def run_default_query():
             entity_name = "trainer_name"
 
         if time_frame == 'Days':
-            print("time frame is in days", n_elements)
+
             query = "WITH \
             tmp AS (SELECT * FROM enter_event NATURAL JOIN race_result NATURAL JOIN " + entity_table + \
-                    " WHERE event_date >= (CURRENT_DATE - " + str(n_elements) + " ) ),\
+                    " WHERE event_date >= (CURRENT_DATE - " + n_elements + " ) ),\
             tmp2 AS (SELECT " + entity_name + ", COUNT(*) AS win FROM tmp\
             WHERE place <=" + rate_query + \
-                " GROUP BY " + entity_name + "),\
+                    " GROUP BY " + entity_name + "),\
             tmp3 AS (SELECT " + entity_name + " , COUNT(*) AS total FROM tmp\
                 GROUP BY " + entity_name + " ),\
             tmp4 AS (SELECT * from tmp2 NATURAL JOIN tmp3)\
@@ -191,11 +196,10 @@ def run_default_query():
         else:
             query = "WITH \
             tmp AS (SELECT * FROM enter_event NATURAL JOIN race_result NATURAL JOIN " + entity_table + \
-                    " WHERE event_id >= ((SELECT event_id FROM enter_event ORDER BY event_date DESC LIMIT 1) - " + str(
-                n_elements) + " ) ),\
+                    " WHERE event_id >= ((SELECT event_id FROM enter_event ORDER BY event_date DESC LIMIT 1) - " + n_elements + " ) ),\
             tmp2 AS (SELECT " + entity_name + ", COUNT(*) AS win FROM tmp\
             WHERE place <=" + rate_query + \
-                " GROUP BY " + entity_name + "),\
+                    " GROUP BY " + entity_name + "),\
             tmp3 AS (SELECT " + entity_name + " , COUNT(*) AS total FROM tmp\
                 GROUP BY " + entity_name + " ),\
             tmp4 AS (SELECT * from tmp2 NATURAL JOIN tmp3)\
@@ -203,6 +207,7 @@ def run_default_query():
 
         # Send query to DB
         print("Start running query")
+        print(query)
         cursor = g.conn.execute(query)
         print("Finished running query")
         query_results = []
