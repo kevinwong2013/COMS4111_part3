@@ -1,4 +1,3 @@
-
 """
 Columbia's COMS W4111.001 Introduction to Databases
 Example Webserver
@@ -9,11 +8,12 @@ A debugger such as "pdb" may be helpful for debugging.
 Read about it online.
 """
 import os
-  # accessible as a variable in index.html:
+# accessible as a variable in index.html:
 from sqlalchemy import *
 from sqlalchemy.pool import NullPool
 from flask import Flask, request, render_template, g, redirect, Response
-#import query_submission
+
+# import query_submission
 
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
 app = Flask(__name__, template_folder=tmpl_dir)
@@ -35,49 +35,51 @@ time_frames = ['Races', 'Days']
 #
 DATABASEURI = "postgresql://hw2735:5438@35.231.103.173/proj1part2"
 
-
 #
 # This line creates a database engine that knows how to connect to the URI above.
 #
 engine = create_engine(DATABASEURI)
 
+
 #
 # Example of running queries in your database
 # Note that this will probably not work if you already have a table named 'test' in your database, containing meaningful data. This is only an example showing you how to run queries in your database using SQLAlchemy.
 #
-#engine.execute("""CREATE TABLE IF NOT EXISTS test (
+# engine.execute("""CREATE TABLE IF NOT EXISTS test (
 #  id serial,
 #  name text
-#);""")
-#engine.execute("""INSERT INTO test(name) VALUES ('grace hopper'), ('alan turing'), ('ada lovelace');""")
+# );""")
+# engine.execute("""INSERT INTO test(name) VALUES ('grace hopper'), ('alan turing'), ('ada lovelace');""")
 
 
 @app.before_request
 def before_request():
-  """
+    """
   This function is run at the beginning of every web request 
   (every time you enter an address in the web browser).
   We use it to setup a database connection that can be used throughout the request.
 
   The variable g is globally accessible.
   """
-  try:
-    g.conn = engine.connect()
-  except:
-    print("uh oh, problem connecting to database")
-    import traceback; traceback.print_exc()
-    g.conn = None
+    try:
+        g.conn = engine.connect()
+    except:
+        print("uh oh, problem connecting to database")
+        import traceback;
+        traceback.print_exc()
+        g.conn = None
+
 
 @app.teardown_request
 def teardown_request(exception):
-  """
+    """
   At the end of the web request, this makes sure to close the database connection.
   If you don't, the database could run out of memory!
   """
-  try:
-    g.conn.close()
-  except Exception as e:
-    pass
+    try:
+        g.conn.close()
+    except Exception as e:
+        pass
 
 
 #
@@ -96,7 +98,7 @@ def teardown_request(exception):
 
 @app.route('/')
 def index():
-  """
+    """
   request is a special object that Flask provides to access web request information:
 
   request.method:   "GET" or "POST"
@@ -106,103 +108,153 @@ def index():
   See its API: http://flask.pocoo.org/docs/0.10/api/#incoming-request-data
   """
 
-  # DEBUG: this is debugging code to see what request looks like
-  # print(request.args)
+    # DEBUG: this is debugging code to see what request looks like
+    # print(request.args)
 
-  return render_template("index.html", rate_types=rate_types, entities=entities, time_frames=time_frames, query_data=[], default_error=False, custom_error=False)
+    return render_template("index.html", rate_types=rate_types, entities=entities, time_frames=time_frames,
+                           query_data=[], default_error=False, custom_error=False)
+
 
 @app.route('/run_query', methods=['POST'])
 def run_query():
-  query_validation = validate_n_entries_field(request.form)
-  if query_validation != True:
-    error = query_validation
-    query_results = []
-  else:
-    print('Custom Query: {}'.format(user_query))
-    user_query = request.form['query']
-    error = False
+    query_validation = validate_n_entries_field(request.form)
+    if query_validation != True:
+        error = query_validation
+        query_results = []
+    else:
+        user_query = request.form['query']
+        print('Custom Query: {}'.format(user_query))
+        error = False
 
-    # Send query to DB
-    query_results = []
-    print("Start running query")
-    cursor = g.conn.execute(user_query)
-    print("Finished running query")
-    for result in cursor:
-      query_results.append(result)
-    cursor.close()
-    print("the Query results are")
-    for row in query_results:
-      print(row)
-    
-#     query_results = [[1, 2, 3], ['a', 'b', 'c']] # For DEBUG
-    
-  return render_template("index.html", rate_types=rate_types, entities=entities, time_frames=time_frames, query_data=query_results, default_error=False, custom_error=error)  
+        # Send query to DB
+        query_results = []
+        print("Start running query")
+        cursor = g.conn.execute(user_query)
+        print("Finished running query")
+        for result in cursor:
+            query_results.append(result)
+        cursor.close()
+        print("the Query results are")
+        for row in query_results:
+            print(row)
+
+    #     query_results = [[1, 2, 3], ['a', 'b', 'c']] # For DEBUG
+
+    return render_template("index.html", rate_types=rate_types, entities=entities, time_frames=time_frames,
+                           query_data=query_results, default_error=False, custom_error=error)
 
 
 @app.route('/run_default_query', methods=['POST'])
 def run_default_query():
-  # Runs a pre-defined query
-  print('in default query: {}'.format(request.form))
-  query_validation = validate_n_entries_field(request.form)
-  if query_validation == True:
-    print('valid request!')
-    error = False
-    
-    # Get chosen query parameters
-    form = request.form
-    n_elements = form['n_entries']
-    rate_type = form['rate_type']
-    entity_type = form['entity_type']
-    time_frame = form['time_frame']
-    print(n_elements, rate_type, entity_type, time_frame)
-    
-    query = None # TODO need to construct query here
-    
-    # Send query to DB
-    print("Start running query")
-    cursor = g.conn.execute(query)
-    print("Finished running query")
-    query_results = []
-    for result in cursor:
-      query_results.append(result)
-    cursor.close()
-    print("the Query results are")
-    for row in query_results:
-      print(row)
+    # Runs a pre-defined query
+    print('in default query: {}'.format(request.form))
+    query_validation = validate_n_entries_field(request.form)
+    if query_validation == True:
+        print('valid request!')
+        error = False
 
-#     query_results = [['a', 'b', 'c'], ['a', 'b', 'c']] # For DEBUG
-  else:
-    # query_validation is an error string
-    print('invalid request')
-    query_results = []
-    error = query_validation
+        rate_types = ['Winning Rate', 'First Three Rate']
+        entities = ['Jockey', 'Horse', 'Trainer']
+        time_frames = ['Races', 'Days']
 
-  return render_template("index.html", rate_types=rate_types, entities=entities, time_frames=time_frames, query_data=query_results, default_error=error, custom_error=False)
+        # Get chosen query parameters
+        form = request.form
+        n_elements = form['n_entries']
+        rate_type = form['rate_type']
+        entity_type = form['entity_type']
+        time_frame = form['time_frame']
+
+        rate_query = "1"
+        entity_table = "jockey"
+        entity_name = "jockey_name"
+        time_frame = "race"
+        query = ""
+        if rate_types == 'Winning Rate': rate_query = "1"
+        if rate_types == 'First Three Rate': rate_query = "3"
+        if entities == 'Jockey':
+            entity_table = "jockey"
+            entity_name = "jockey_name"
+        if entities == 'Horse':
+            entity_table = "horse"
+            entity_name = "horse_name"
+        if entities == 'Trainer':
+            entity_table = "trainer"
+            entity_name = "trainer_name"
+
+        print(n_elements, rate_type, entity_type, time_frame)
+        # TODO need to construct query here
+        if time_frame == 'Days':
+            query = "WITH \
+              tmp AS (SELECT * FROM enter_event NATURAL JOIN race_result NATURAL JOIN " + entity_table + \
+                    "WHERE event_date >= (CURRENT_DATE- " + str(time_frame) + ") ),\
+                tmp2 AS (SELECT" + entity_name + ", COUNT(*) AS win FROM tmp\
+              WHERE place <=" + rate_query + \
+                    "GROUP BY " + entity_name + "),\
+              tmp3 AS (SELECT " + entity_name + ", COUNT(*) AS total FROM tmp\
+                   GROUP BY " + entity_name + "),\
+              tmp4 AS (SELECT * from tmp2 NATURAL JOIN tmp3)\
+              SELECT " + entity_name + ", win / CAST(total AS DECIMAL) AS rate FROM tmp4 ORDER BY " + entity_name + ";"
+        if time_frame == 'race':
+            query = "WITH \
+              tmp AS (SELECT * FROM enter_event NATURAL JOIN race_result NATURAL JOIN " + entity_table + \
+                    "WHERE event_id >= ((SELECT event_id FROM enter_event ORDER BY event_date DESC LIMIT 1)  - " + str(time_frame) + ") ),\
+                tmp2 AS (SELECT" + entity_name + ", COUNT(*) AS win FROM tmp\
+              WHERE place <=" + rate_query + \
+                    "GROUP BY " + entity_name + "),\
+              tmp3 AS (SELECT " + entity_name + ", COUNT(*) AS total FROM tmp\
+                   GROUP BY " + entity_name + "),\
+              tmp4 AS (SELECT * from tmp2 NATURAL JOIN tmp3)\
+              SELECT " + entity_name + ", win / CAST(total AS DECIMAL) AS rate FROM tmp4 ORDER BY " + entity_name + ";"
+
+        # Send query to DB
+        print("Start running query")
+        cursor = g.conn.execute(query)
+        print("Finished running query")
+        query_results = []
+        for result in cursor:
+            query_results.append(result)
+        cursor.close()
+        print("the Query results are")
+        for row in query_results:
+            print(row)
+
+    #     query_results = [['a', 'b', 'c'], ['a', 'b', 'c']] # For DEBUG
+    else:
+        # query_validation is an error string
+        print('invalid request')
+        query_results = []
+        error = query_validation
+
+    return render_template("index.html", rate_types=rate_types, entities=entities, time_frames=time_frames,
+                           query_data=query_results, default_error=error, custom_error=False)
+
 
 def validate_n_entries_field(form):
-  # expected_keys = {'rate_type', 'entity_type', 'n_entries', 'time_frame'}
-  # keys = set(form.keys()) 
-  # if expected_keys - keys != set(): 
-  #   return 'Please select one of the three rate types at the top.'
-  
-  try:
-    _ = int(form['n_entries'])
-  except:
-    print('except hit')
-    return 'Please enter a number in the "Number of Entries" field.'
-  
-  return True
+    # expected_keys = {'rate_type', 'entity_type', 'n_entries', 'time_frame'}
+    # keys = set(form.keys())
+    # if expected_keys - keys != set():
+    #   return 'Please select one of the three rate types at the top.'
+
+    try:
+        _ = int(form['n_entries'])
+    except:
+        print('except hit')
+        return 'Please enter a number in the "Number of Entries" field.'
+
+    return True
+
 
 if __name__ == "__main__":
-  import click
+    import click
 
-  @click.command()
-  @click.option('--debug', is_flag=True)
-  @click.option('--threaded', is_flag=True)
-  @click.argument('HOST', default='0.0.0.0')
-  @click.argument('PORT', default=8111, type=int)
-  def run(debug, threaded, host, port):
-    """
+
+    @click.command()
+    @click.option('--debug', is_flag=True)
+    @click.option('--threaded', is_flag=True)
+    @click.argument('HOST', default='0.0.0.0')
+    @click.argument('PORT', default=8111, type=int)
+    def run(debug, threaded, host, port):
+        """
     This function handles command line parameters.
     Run the server using:
 
@@ -214,8 +266,9 @@ if __name__ == "__main__":
 
     """
 
-    HOST, PORT = host, port
-    print("running on %s:%d" % (HOST, PORT))
-    app.run(host=HOST, port=PORT, debug=debug, threaded=threaded)
+        HOST, PORT = host, port
+        print("running on %s:%d" % (HOST, PORT))
+        app.run(host=HOST, port=PORT, debug=debug, threaded=threaded)
 
-  run()
+
+    run()
