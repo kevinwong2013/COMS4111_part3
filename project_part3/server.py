@@ -153,10 +153,6 @@ def run_default_query():
         print('valid request!')
         error = False
 
-        rate_types = ['Winning Rate', 'First Three Rate']
-        entities = ['Jockey', 'Horse', 'Trainer']
-        time_frames = ['Races', 'Days']
-
         # Get chosen query parameters
         form = request.form
         n_elements = form['n_entries']
@@ -164,20 +160,17 @@ def run_default_query():
         entity_type = form['entity_type']
         time_frame = form['time_frame']
 
-        rate_query = "1"
-        entity_table = "jockey"
-        entity_name = "jockey_name"
-        time_frame = "race"
-        query = ""
-        if rate_types == 'Winning Rate': rate_query = "1"
-        if rate_types == 'First Three Rate': rate_query = "3"
+        if rate_types == 'Winning Rate':
+            rate_query = "1"
+        else:
+            rate_query = "3"
         if entities == 'Jockey':
             entity_table = "jockey"
             entity_name = "jockey_name"
-        if entities == 'Horse':
+        elif entities == 'Horse':
             entity_table = "horse"
             entity_name = "horse_name"
-        if entities == 'Trainer':
+        else:
             entity_table = "trainer"
             entity_name = "trainer_name"
 
@@ -186,7 +179,7 @@ def run_default_query():
         if time_frame == 'Days':
             query = "WITH \
               tmp AS (SELECT * FROM enter_event NATURAL JOIN race_result NATURAL JOIN " + entity_table + \
-                    "WHERE event_date >= (CURRENT_DATE- " + str(time_frame) + ") ),\
+                    "WHERE event_date >= (CURRENT_DATE- " + str(n_elements) + ") ),\
                 tmp2 AS (SELECT" + entity_name + ", COUNT(*) AS win FROM tmp\
               WHERE place <=" + rate_query + \
                     "GROUP BY " + entity_name + "),\
@@ -194,10 +187,10 @@ def run_default_query():
                    GROUP BY " + entity_name + "),\
               tmp4 AS (SELECT * from tmp2 NATURAL JOIN tmp3)\
               SELECT " + entity_name + ", win / CAST(total AS DECIMAL) AS rate FROM tmp4 ORDER BY " + entity_name + ";"
-        if time_frame == 'race':
+        else:
             query = "WITH \
               tmp AS (SELECT * FROM enter_event NATURAL JOIN race_result NATURAL JOIN " + entity_table + \
-                    "WHERE event_id >= ((SELECT event_id FROM enter_event ORDER BY event_date DESC LIMIT 1)  - " + str(time_frame) + ") ),\
+                    "WHERE event_id >= ((SELECT event_id FROM enter_event ORDER BY event_date DESC LIMIT 1)  - " + str(n_elements) + ") ),\
                 tmp2 AS (SELECT" + entity_name + ", COUNT(*) AS win FROM tmp\
               WHERE place <=" + rate_query + \
                     "GROUP BY " + entity_name + "),\
