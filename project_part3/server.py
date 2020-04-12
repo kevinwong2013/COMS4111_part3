@@ -123,11 +123,20 @@ def run_query():
         query_results = []
     else:
         user_query = request.form['query']
+        got_error = False
+        forbidden_commands = ['drop', 'delete', 'alter', 'insert']
+        for forbidden_command in forbidden_commands:
+            if forbidden_command in user_query.lower():
+                error = 'SQL Command ' + forbidden_command + ' is not allowed'
+                query_results = []
+                got_error = True
+                break
         if user_query.split(' ')[0].lower() != 'select':
             # Invalid request
             error = 'We currently only accept queries starting with "SELECT"'
             query_results = []
-        else:
+            got_error = True
+        if not got_error:
             print('Custom Query: {}'.format(user_query))
             error = False
 
